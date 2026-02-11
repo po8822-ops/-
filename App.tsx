@@ -13,23 +13,41 @@ import { INITIAL_PORTFOLIOS, BRAND_LOGOS } from './constants';
 
 const App: React.FC = () => {
   const [portfolios, setPortfolios] = useState<Portfolio[]>(() => {
-    const saved = localStorage.getItem('holeen_portfolios');
-    return saved ? JSON.parse(saved) : INITIAL_PORTFOLIOS;
+    try {
+      const saved = localStorage.getItem('holeen_portfolios');
+      return saved ? JSON.parse(saved) : INITIAL_PORTFOLIOS;
+    } catch (e) {
+      console.warn("Failed to load portfolios from localStorage", e);
+      return INITIAL_PORTFOLIOS;
+    }
   });
 
   const [brandLogos, setBrandLogos] = useState<string[]>(() => {
-    const saved = localStorage.getItem('holeen_brand_logos');
-    return saved ? JSON.parse(saved) : BRAND_LOGOS;
+    try {
+      const saved = localStorage.getItem('holeen_brand_logos');
+      return saved ? JSON.parse(saved) : BRAND_LOGOS;
+    } catch (e) {
+      console.warn("Failed to load brand logos from localStorage", e);
+      return BRAND_LOGOS;
+    }
   });
 
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('holeen_portfolios', JSON.stringify(portfolios));
+    try {
+      localStorage.setItem('holeen_portfolios', JSON.stringify(portfolios));
+    } catch (e) {
+      console.error("Failed to save portfolios to localStorage", e);
+    }
   }, [portfolios]);
 
   useEffect(() => {
-    localStorage.setItem('holeen_brand_logos', JSON.stringify(brandLogos));
+    try {
+      localStorage.setItem('holeen_brand_logos', JSON.stringify(brandLogos));
+    } catch (e) {
+      console.error("Failed to save brand logos to localStorage", e);
+    }
   }, [brandLogos]);
 
   const openInquiry = () => setIsInquiryOpen(true);
