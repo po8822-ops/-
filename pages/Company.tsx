@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -162,12 +161,12 @@ const Company: React.FC<CompanyProps> = ({ onInquiryClick }) => {
               { id: "03", title: "기획 확정", desc: <>충분한 소통을 통해 기획안 컨펌 후<br />진행합니다.</> },
               { id: "04", title: "촬영&디자인", desc: <>제품의 가치를 최대로 살릴 수 있는<br />비주얼을 제작합니다.</> },
               { id: "05", title: "1차 시안 컨펌&잔금 결제", desc: <>사소한 디테일까지 꼼꼼하게 다듬고<br />완성합니다.</> },
-              { id: "06", title: "최종본 전달", desc: <>쉬운 업로드를 위해 분할 컷과 원본 PSD를<br />무상 제공합니다.</> },
+              { id: "06", title: "최종본 전달", desc: <>쉬운 업로드를 위해 분할 컷과<br />원본 PSD를 무상 제공합니다.</> },
             ].map((step, idx) => (
               <div key={idx} className="scroll-reveal group p-10 bg-[#162436] rounded-[2.5rem] hover:bg-[#2F6BFF]/10 transition-all duration-500">
                 <div className="text-[#2F6BFF] font-black text-6xl mb-10 opacity-20">{step.id}</div>
-                <h4 className="text-2xl font-black mb-5">{step.title}</h4>
-                <p className="text-slate-400 leading-relaxed font-medium">{step.desc}</p>
+                <h4 className="text-xl font-black mb-5">{step.title}</h4>
+                <p className="text-slate-400 leading-relaxed font-medium text-[14px]">{step.desc}</p>
               </div>
             ))}
           </div>

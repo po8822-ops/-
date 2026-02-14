@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -38,17 +37,29 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
       <Navbar onInquiryClick={onInquiryClick} />
       
       {/* HERO SECTION */}
-      <section className="relative min-h-screen flex flex-col justify-center pt-32 pb-32 px-6 overflow-hidden">
-        <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] bg-[#2F6BFF]/10 rounded-full blur-[150px]"></div>
-        <div className="absolute bottom-[-10%] left-[-20%] w-[50%] h-[50%] bg-[#2F6BFF]/5 rounded-full blur-[120px]"></div>
+      <section className="relative min-h-screen flex flex-col justify-center pt-52 pb-32 px-6 overflow-hidden">
+        {/* Background Image with Overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-1000"
+          style={{ 
+            backgroundImage: 'url("https://postfiles.pstatic.net/MjAyNjAyMTRfODAg/MDAxNzcxMDM4NDg2NTQ3.cSCTYdvf-z-0Vy3CtEOUW-7bMcfmJGc4kHI3lnzx_hUg.7I3xmP7S-cCs3_eC84_8zcNCBeeXCj3BuQn6LgafKXwg.PNG/unnamed_upscayl_4x_upscayl-standard-4x.png?type=w966")' 
+          }}
+        >
+          {/* Updated overlay from bg-black/50 to bg-black/70 */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+        </div>
+
+        {/* Floating Glow Effects (Secondary) */}
+        <div className="absolute top-[-20%] right-[-10%] w-[70%] h-[70%] bg-[#2F6BFF]/10 rounded-full blur-[150px] z-0"></div>
+        <div className="absolute bottom-[-10%] left-[-20%] w-[50%] h-[50%] bg-[#2F6BFF]/5 rounded-full blur-[120px] z-0"></div>
 
         <div className="max-w-6xl mx-auto text-center relative z-10">
-          <h1 className="scroll-reveal text-5xl md:text-[92px] font-black leading-[1.05] mb-12 tracking-tight">
+          <h1 className="scroll-reveal text-5xl md:text-[92px] font-black leading-[1.05] mb-12 tracking-tight drop-shadow-2xl">
             상세페이지,<br />
-            <span className="text-slate-500">만들었는데</span> 왜 아직도<br />
+            <span className="text-slate-300">만들었는데</span> 왜 아직도<br />
             안 팔릴까요?
           </h1>
-          <p className="scroll-reveal text-xl md:text-2xl text-slate-400 font-medium mb-12 leading-relaxed max-w-4xl mx-auto">
+          <p className="scroll-reveal text-xl md:text-2xl text-slate-200 font-medium mb-12 leading-relaxed max-w-4xl mx-auto drop-shadow-lg">
             디자인은 마음에 드는데 매출은 그대로?<br />
             진짜 안팔리는 이유는 디자인이 아니라<br />
             <span className="text-white font-bold underline underline-offset-8 decoration-2 decoration-[#2F6BFF]">구조가 빠졌기 때문입니다.</span>
@@ -61,14 +72,14 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
             >
               문의하기
             </button>
-            <Link to="/portfolio" className="w-full md:w-auto px-12 py-6 bg-transparent text-white border-2 border-slate-700 rounded-2xl text-xl font-black hover:border-white transition-all transform hover:-translate-y-1">
+            <Link to="/portfolio" className="w-full md:w-auto px-12 py-6 bg-white/10 backdrop-blur-md text-white border-2 border-white/20 rounded-2xl text-xl font-black hover:bg-white hover:text-[#0F1C2E] transition-all transform hover:-translate-y-1">
               포트폴리오 보기
             </Link>
           </div>
 
-          <div className="scroll-reveal mt-20 opacity-40 overflow-hidden">
-            <p className="text-xs font-bold text-slate-500 tracking-[0.4em] uppercase mb-14">Trusted Strategic Partner</p>
-            <div className="relative w-full overflow-hidden grayscale invert">
+          <div className="scroll-reveal mt-20 opacity-60 overflow-hidden">
+            <p className="text-xs font-bold text-slate-300 tracking-[0.4em] uppercase mb-14">Trusted Strategic Partner</p>
+            <div className="relative w-full overflow-hidden grayscale invert brightness-200">
               <div className="animate-marquee flex items-center gap-16 md:gap-24">
                 {rollingLogos.map((logo, idx) => (
                   <img key={idx} src={logo} alt="brand" className="h-10 md:h-14 object-contain shrink-0" />
@@ -147,12 +158,12 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
               { id: "03", title: "기획 확정", desc: <>충분한 소통을 통해 기획안 컨펌 후<br />진행합니다.</> },
               { id: "04", title: "촬영&디자인", desc: <>제품의 가치를 최대로 살릴 수 있는<br />비주얼을 제작합니다.</> },
               { id: "05", title: "1차 시안 컨펌&잔금 결제", desc: <>사소한 디테일까지 꼼꼼하게 다듬고<br />완성합니다.</> },
-              { id: "06", title: "최종본 전달", desc: <>쉬운 업로드를 위해 분할 컷과 원본 PSD를<br />무상 제공합니다.</> },
+              { id: "06", title: "최종본 전달", desc: <>쉬운 업로드를 위해 분할 컷과<br />원본 PSD를 무상 제공합니다.</> },
             ].map((step, idx) => (
               <div key={idx} className="scroll-reveal group p-10 bg-[#162436] rounded-[2.5rem] border border-white/5 hover:bg-[#2F6BFF]/10 transition-all duration-500">
                 <div className="text-[#2F6BFF] font-black text-6xl mb-10 opacity-20 group-hover:opacity-100 transition-opacity">{step.id}</div>
-                <h4 className="text-2xl font-black mb-5">{step.title}</h4>
-                <p className="text-slate-400 leading-relaxed font-medium">{step.desc}</p>
+                <h4 className="text-xl font-black mb-5">{step.title}</h4>
+                <p className="text-slate-400 leading-relaxed font-medium text-[14px]">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -230,7 +241,7 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
 
           {/* NEW: LIMITED AVAILABILITY SECTION */}
           <div className="scroll-reveal mb-40">
-             <div className="relative overflow-hidden bg-gradient-to-r from-[#2F6BFF] to-[#1E4DFF] p-16 md:p-24 rounded-[4rem] shadow-2xl shadow-blue-900/30 text-center">
+             <div className="relative overflow-hidden bg-gradient-to-r from-[#2F6BFF] to-[#1E4DFF] py-12 md:py-16 px-10 md:px-24 rounded-[4rem] shadow-2xl shadow-blue-900/30 text-center">
                 <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
                   <div className="absolute top-[-10%] left-[-5%] w-64 h-64 bg-white rounded-full blur-[80px]"></div>
                   <div className="absolute bottom-[-10%] right-[-5%] w-64 h-64 bg-black rounded-full blur-[80px]"></div>
@@ -239,11 +250,12 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
                    <div className="inline-block px-6 py-2 mb-8 rounded-full bg-white/20 text-white text-sm font-black tracking-widest uppercase backdrop-blur-sm">
                       Workload Limitation
                    </div>
-                   <h3 className="text-2xl md:text-4xl font-black text-white leading-tight mb-4">
-                      맞춤형 고퀄리티 작업을 위해<br className="md:hidden" /> <span className="underline underline-offset-8 decoration-white/40">매주 2건의 작업만 진행합니다.</span>
+                   <h3 className="text-3xl md:text-4xl font-black text-white leading-tight mb-8">
+                      맞춤형 고퀄리티 작업을 위해<br />
+                      <span className="underline underline-offset-8 decoration-white/40">매주 2건의 작업만 진행합니다.</span>
                    </h3>
-                   <p className="text-white/70 text-lg font-bold">
-                      단순한 공장이 아닌, 하나의 작품을 설계하기 위한 고집입니다.
+                   <p className="text-white/80 text-lg md:text-xl font-bold max-w-2xl mx-auto leading-relaxed">
+                      템플릿에 끼워 맞춘게 아닌, 하나의 작품을 설계하기 위한 고집입니다.
                    </p>
                 </div>
              </div>
