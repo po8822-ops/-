@@ -285,9 +285,9 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
       </section>
 
       {/* CTA SECTION */}
-      <section className="py-44 px-6 bg-[#2F6BFF] text-white relative overflow-hidden text-center">
+      <section className="py-24 px-6 bg-[#2F6BFF] text-white relative overflow-hidden text-center">
         <div className="max-w-4xl mx-auto relative z-10 scroll-reveal">
-          <h2 className="text-3xl md:text-5xl font-black mb-6 leading-[1.1] tracking-tight">
+          <h2 className="text-[26px] md:text-[44px] font-black mb-6 leading-[1.1] tracking-tight">
             혹시 상세페이지 리뉴얼을 고민하고 오셨다면?
           </h2>
           <p className="text-xl md:text-2xl font-black mb-8 opacity-90">
