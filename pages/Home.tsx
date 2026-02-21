@@ -39,13 +39,13 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
       {/* HERO SECTION */}
       <section className="relative min-h-screen flex flex-col justify-center pt-52 pb-32 px-6 overflow-hidden">
         {/* Background Image with Overlay */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-1000"
-          style={{ 
-            backgroundImage: 'url("https://postfiles.pstatic.net/MjAyNjAyMTRfODAg/MDAxNzcxMDM4NDg2NTQ3.cSCTYdvf-z-0Vy3CtEOUW-7bMcfmJGc4kHI3lnzx_hUg.7I3xmP7S-cCs3_eC84_8zcNCBeeXCj3BuQn6LgafKXwg.PNG/unnamed_upscayl_4x_upscayl-standard-4x.png?type=w966")' 
-          }}
-        >
-          {/* Updated overlay from bg-black/50 to bg-black/70 */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://postfiles.pstatic.net/MjAyNjAyMTRfODAg/MDAxNzcxMDM4NDg2NTQ3.cSCTYdvf-z-0Vy3CtEOUW-7bMcfmJGc4kHI3lnzx_hUg.7I3xmP7S-cCs3_eC84_8zcNCBeeXCj3BuQn6LgafKXwg.PNG/unnamed_upscayl_4x_upscayl-standard-4x.png?type=w966"
+            alt="Hero Background"
+            className="w-full h-full object-cover transition-transform duration-1000"
+            referrerPolicy="no-referrer"
+          />
           <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
         </div>
 
@@ -227,7 +227,7 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
                 <div className="text-slate-600 font-black text-4xl mb-8 opacity-30">02</div>
                 <h4 className="text-2xl font-black mb-5">가격 정찰제 & 원본 제공</h4>
                 <p className="text-slate-400 leading-relaxed text-lg font-medium">
-                  추가금 유도 없이 처음 약속드린 견적 그대로 진행하며,<br />
+                  추가금 유도 없이 처음 약속드린 견적 그대로 진행,<br />
                   수정에 필요한 PSD 원본 파일을 무상 제공합니다.
                 </p>
               </div>

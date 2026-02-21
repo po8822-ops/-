@@ -94,8 +94,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onInquiryClick }) => {
               <div className="text-slate-600 font-black text-4xl mb-8 opacity-30">02</div>
               <h4 className="text-2xl font-black mb-5">가격 정찰제 & 원본 제공</h4>
               <p className="text-slate-400 leading-relaxed text-lg font-medium">
-                추가금 유도 없이 처음 약속한 금액 그대로 진행하며,<br />
-                수정에 용이한 PSD 원본 파일을 무상 제공합니다.
+                추가금 유도 없이 처음 약속드린 견적 그대로 진행,<br />
+                수정에 필요한 PSD 원본 파일을 무상 제공합니다.
               </p>
             </div>
           </div>

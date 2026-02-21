@@ -32,8 +32,8 @@ const Company: React.FC<CompanyProps> = ({ onInquiryClick }) => {
           <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight">디자인 그 이상의<br /><span className="text-[#2F6BFF]">비즈니스 구조 설계</span></h1>
           <p className="text-slate-400 text-xl md:text-2xl font-medium leading-relaxed max-w-4xl">
             상세페이지는 그냥 상품 소개 이미지가 아닙니다.<br />
-            고객의 구매 심리를 꿰뚫는 구조로 설계하여, <span className="text-white font-bold">24시간 일하는 영업 사원</span>처럼<br />
-            일해야 진짜 상세페이지입니다.
+            고객의 구매 심리를 꿰뚫는 구조로 설계하여,<br />
+            <span className="text-white font-bold">24시간 일하는 영업 사원</span>처럼 일해야 진짜 상세페이지입니다.
           </p>
         </div>
       </section>
