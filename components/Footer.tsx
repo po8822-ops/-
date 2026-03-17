@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
             <img 
               src="https://blogpfthumb-phinf.pstatic.net/MjAyNjAyMTRfMjYz/MDAxNzcxMDMwMzM3Mzc5.Ew56FSmPQc6Da1HGaIAzzqf2KUeM2UlesZJsoy58fe0g.KHJ2RxyrDVyqlTW7qxLPcyYbuiPxctuvyXZHZohaZk0g.PNG/%ED%99%80%EB%A6%B0%ED%8E%98%EC%9D%B4%EC%A7%80_%EB%A1%9C%EA%B3%A0_%EB%88%84%EB%81%BC.png/%25ED%2599%2580%25EB%25A6%25B0%25ED%258E%2598%25EC%259D%25B4%25EC%25A7%2580%2B%25EB%25A1%259C%25EA%25B3%25A0%2B%25EB%2588%2584%25EB%2581%25BC.png?type=w161" 
               alt="HOLINPAGE Logo" 
-              className="h-32 md:h-48 w-auto object-contain"
+              className="h-24 md:h-48 w-auto object-contain"
             />
           </div>
           <div className="space-y-3 text-base text-slate-500 font-medium">
