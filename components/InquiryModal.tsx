@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { InquiryData } from '../types';
+import { db, handleFirestoreError, OperationType } from '../src/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface InquiryModalProps {
   isOpen: boolean;
@@ -17,38 +19,38 @@ const InquiryModal: React.FC<InquiryModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // 버튼 비활성화 (여러 번 클릭 방지)
     setIsSubmitting(true);
 
-    // 사용자가 제공한 새로운 Google Apps Script URL
-    const url = 'https://script.google.com/macros/s/AKfycby1DYi1OoNIJc-kWkGyGHDOlYSSgJMhuDKuUmtPEXmaVjtzIb9WpIWdevQ4LJZeuTA0bQ/exec';
-    
-    const body = new FormData();
-    body.append('name', formData.name);
-    body.append('phone', formData.phone);
-    body.append('brand', formData.brand);
+    try {
+      // 1. Firestore에 저장
+      await addDoc(collection(db, 'inquiries'), {
+        ...formData,
+        createdAt: serverTimestamp()
+      });
 
-    fetch(url, {
-      method: 'POST',
-      body: body
-    })
-    .then(res => {
+      // 2. Google Apps Script로 전송 (기존 알림용)
+      const url = 'https://script.google.com/macros/s/AKfycby1DYi1OoNIJc-kWkGyGHDOlYSSgJMhuDKuUmtPEXmaVjtzIb9WpIWdevQ4LJZeuTA0bQ/exec';
+      const body = new FormData();
+      body.append('name', formData.name);
+      body.append('phone', formData.phone);
+      body.append('brand', formData.brand);
+
+      // fetch는 백그라운드에서 실행 (실패해도 Firestore 저장은 성공했으므로 사용자에게 성공 알림)
+      fetch(url, { method: 'POST', body: body }).catch(e => console.error('GAS Error:', e));
+
       alert('문의가 성공적으로 접수되었습니다. 확인 후 연락드리겠습니다!');
-      // 폼 초기화
       setFormData({ name: '', phone: '', brand: '' });
       onClose();
-    })
-    .catch(error => {
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'inquiries');
       alert('오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-      console.error('Error!', error.message);
-    })
-    .finally(() => {
-      // 버튼 활성화 및 텍스트 복구
+    } finally {
       setIsSubmitting(false);
-    });
+    }
   };
 
   return (

@@ -22,6 +22,11 @@ export interface PricePlan {
   isHighlighted?: boolean;
 }
 
+export interface BrandLogo {
+  id: string;
+  url: string;
+}
+
 export interface InquiryData {
   name: string;
   phone: string;

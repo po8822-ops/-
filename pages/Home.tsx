@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Portfolio } from '../types';
+import { Portfolio, BrandLogo } from '../types';
 
 interface HomeProps {
   portfolios: Portfolio[];
-  brandLogos: string[];
+  brandLogos: BrandLogo[];
   onInquiryClick: () => void;
 }
 
@@ -27,7 +27,7 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
     return () => observer.disconnect();
   }, []);
 
-  const featuredPortfolios = portfolios.slice(0, 3);
+  const featuredPortfolios = portfolios.slice(0, 6);
 
   // 무한 롤링을 위해 로고 리스트를 복제합니다.
   const rollingLogos = brandLogos.length > 0 ? [...brandLogos, ...brandLogos] : [];
@@ -82,7 +82,7 @@ const Home: React.FC<HomeProps> = ({ portfolios, brandLogos, onInquiryClick }) =
             <div className="relative w-full overflow-hidden grayscale invert brightness-200">
               <div className="animate-marquee flex items-center gap-12 md:gap-24">
                 {rollingLogos.map((logo, idx) => (
-                  <img key={idx} src={logo} alt="brand" className="h-8 md:h-14 object-contain shrink-0" />
+                  <img key={idx} src={logo.url} alt="brand" className="h-8 md:h-14 object-contain shrink-0" />
                 ))}
               </div>
             </div>

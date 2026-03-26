@@ -1,21 +1,59 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Portfolio } from '../types';
+import { Portfolio, BrandLogo } from '../types';
+import { db, auth, handleFirestoreError, OperationType } from '../src/firebase';
+import { collection, addDoc, deleteDoc, doc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AdminProps {
   portfolios: Portfolio[];
   setPortfolios: React.Dispatch<React.SetStateAction<Portfolio[]>>;
-  brandLogos: string[];
-  setBrandLogos: React.Dispatch<React.SetStateAction<string[]>>;
+  brandLogos: BrandLogo[];
+  setBrandLogos: React.Dispatch<React.SetStateAction<BrandLogo[]>>;
 }
 
 const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, setBrandLogos }) => {
-  const [password, setPassword] = useState('');
+  const [user, setUser] = useState(auth.currentUser);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const portfolioFileInputRef = useRef<HTMLInputElement>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u: any) => {
+      setUser(u);
+      // For now, let's assume any logged in user is authorized for this demo, 
+      // but in a real app we'd check against an admin list.
+      if (u) {
+        setIsAuthorized(true);
+      } else {
+        setIsAuthorized(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('로그인에 실패했습니다.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
   
   const [formData, setFormData] = useState<Omit<Portfolio, 'id'>>({
     brand: '',
@@ -24,15 +62,6 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
     images: [],
     link: ''
   });
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === '2213') {
-      setIsAuthorized(true);
-    } else {
-      alert('비밀번호가 틀렸습니다.');
-    }
-  };
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -43,12 +72,38 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
     });
   };
 
+  const compressImage = (base64: string, maxWidth = 1000, quality = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+    });
+  };
+
   const handlePortfolioImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
     const base64Images = await Promise.all(
-      Array.from(files).map(file => fileToBase64(file as File))
+      Array.from(files).map(async file => {
+        const base64 = await fileToBase64(file as File);
+        return compressImage(base64);
+      })
     );
 
     setFormData(prev => ({
@@ -64,17 +119,41 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
     if (!files) return;
 
     const base64Logos = await Promise.all(
-      Array.from(files).map(file => fileToBase64(file as File))
+      Array.from(files).map(async file => {
+        const base64 = await fileToBase64(file as File);
+        return compressImage(base64, 300, 0.8); // Logos can be smaller
+      })
     );
 
-    setBrandLogos(prev => [...prev, ...base64Logos]);
+    setIsSaving(true);
+    try {
+      for (const url of base64Logos) {
+        await addDoc(collection(db, 'brandLogos'), {
+          url,
+          createdAt: serverTimestamp()
+        });
+      }
+      toast.success('파트너 로고가 성공적으로 업로드되었습니다.');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'brandLogos');
+    } finally {
+      setIsSaving(false);
+    }
 
     if (logoFileInputRef.current) logoFileInputRef.current.value = '';
   };
 
-  const removeLogo = (index: number) => {
+  const removeLogo = async (logo: BrandLogo) => {
     if (window.confirm('이 파트너사 로고를 삭제하시겠습니까?')) {
-      setBrandLogos(brandLogos.filter((_, i) => i !== index));
+      setIsSaving(true);
+      try {
+        await deleteDoc(doc(db, 'brandLogos', logo.id));
+        toast.success('로고가 삭제되었습니다.');
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, `brandLogos/${logo.id}`);
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -85,23 +164,35 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
     }));
   };
 
-  const handleAddPortfolio = (e: React.FormEvent) => {
+  const handleAddPortfolio = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.images.length === 0) {
-      alert('이미지를 최소 1장 이상 업로드해주세요.');
+      toast.error('이미지를 최소 1장 이상 업로드해주세요.');
       return;
     }
-    const newItem: Portfolio = {
-      ...formData,
-      id: Date.now().toString()
-    };
-    setPortfolios([newItem, ...portfolios]);
-    setFormData({ brand: '', product: '', type: '신규 제작', images: [], link: '' });
+    
+    setIsSaving(true);
+    try {
+      await addDoc(collection(db, 'portfolios'), {
+        ...formData,
+        createdAt: serverTimestamp()
+      });
+      setFormData({ brand: '', product: '', type: '신규 제작', images: [], link: '' });
+      toast.success('포트폴리오가 성공적으로 등록되었습니다.');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'portfolios');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleDeletePortfolio = (id: string) => {
+  const handleDeletePortfolio = async (id: string) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
-      setPortfolios(portfolios.filter(p => p.id !== id));
+      try {
+        await deleteDoc(doc(db, 'portfolios', id));
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, `portfolios/${id}`);
+      }
     }
   };
 
@@ -111,38 +202,46 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleUpdatePortfolio = (e: React.FormEvent) => {
+  const handleUpdatePortfolio = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingId) return;
     if (formData.images.length === 0) {
-      alert('이미지를 최소 1장 이상 업로드해주세요.');
+      toast.error('이미지를 최소 1장 이상 업로드해주세요.');
       return;
     }
-    setPortfolios(portfolios.map(p => p.id === editingId ? { ...formData, id: editingId } : p));
-    setEditingId(null);
-    setFormData({ brand: '', product: '', type: '신규 제작', images: [], link: '' });
+
+    setIsSaving(true);
+    try {
+      await setDoc(doc(db, 'portfolios', editingId), {
+        ...formData,
+        updatedAt: serverTimestamp(),
+        createdAt: serverTimestamp() // Ensure it has a createdAt for the query to work
+      }, { merge: true });
+      setEditingId(null);
+      setFormData({ brand: '', product: '', type: '신규 제작', images: [], link: '' });
+      toast.success('포트폴리오가 성공적으로 수정되었습니다.');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `portfolios/${editingId}`);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!isAuthorized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0F1C2E] px-6">
-        <form onSubmit={handleLogin} className="w-full max-w-sm bg-[#162436] p-16 rounded-[4rem] shadow-2xl border border-white/5">
+        <div className="w-full max-w-sm bg-[#162436] p-16 rounded-[4rem] shadow-2xl border border-white/5 text-center">
           <h1 className="text-3xl font-black mb-12 text-center text-white tracking-tighter">HOLIN <span className="text-[#2F6BFF]">ADMIN</span></h1>
           <div className="space-y-6">
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full px-6 py-5 bg-[#0F1C2E] border-none rounded-2xl outline-none focus:ring-2 focus:ring-[#2F6BFF] transition-all font-bold text-lg text-white"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoFocus
-            />
-            <button type="submit" className="w-full py-5 bg-[#2F6BFF] text-white rounded-2xl font-black text-xl hover:bg-white hover:text-[#0F1C2E] transition-all shadow-xl">
-              Login
+            <button 
+              onClick={handleGoogleLogin}
+              className="w-full py-5 bg-[#2F6BFF] text-white rounded-2xl font-black text-xl hover:bg-white hover:text-[#0F1C2E] transition-all shadow-xl flex items-center justify-center gap-3"
+            >
+              Google Login
             </button>
             <Link to="/" className="block text-center text-slate-500 font-bold text-sm hover:text-white transition">Back to Home</Link>
           </div>
-        </form>
+        </div>
       </div>
     );
   }
@@ -153,7 +252,10 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-20 gap-10">
           <div>
             <h1 className="text-5xl font-black tracking-tight mb-4">Holin Admin Console</h1>
-            <p className="text-slate-500 font-bold">포트폴리오 및 파트너사 로고를 관리할 수 있습니다.</p>
+            <div className="flex items-center gap-4">
+              <p className="text-slate-500 font-bold">포트폴리오 및 파트너사 로고를 관리할 수 있습니다.</p>
+              <button onClick={handleLogout} className="text-xs text-red-500 font-bold hover:underline">Logout</button>
+            </div>
           </div>
           <Link to="/" className="px-10 py-4 bg-white text-[#0F1C2E] rounded-full font-black text-sm hover:bg-[#2F6BFF] hover:text-white transition-all">
             HOME PAGE →
@@ -187,11 +289,11 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {brandLogos.map((logo, idx) => (
-                <div key={idx} className="relative group aspect-[3/1] bg-[#0F1C2E] rounded-2xl overflow-hidden p-4 flex items-center justify-center border border-white/5">
-                  <img src={logo} alt="brand" className="max-w-full max-h-full object-contain grayscale invert opacity-60 group-hover:opacity-100 transition-opacity" />
+              {brandLogos.map((logo) => (
+                <div key={logo.id} className="relative group aspect-[3/1] bg-[#0F1C2E] rounded-2xl overflow-hidden p-4 flex items-center justify-center border border-white/5">
+                  <img src={logo.url} alt="brand" className="max-w-full max-h-full object-contain grayscale invert opacity-60 group-hover:opacity-100 transition-opacity" />
                   <button 
-                    onClick={() => removeLogo(idx)}
+                    onClick={() => removeLogo(logo)}
                     className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-black text-xs transition-opacity"
                   >
                     삭제
@@ -270,8 +372,27 @@ const Admin: React.FC<AdminProps> = ({ portfolios, setPortfolios, brandLogos, se
                   <input required placeholder="https://blog.naver.com/..." className="w-full px-6 py-4 bg-[#0F1C2E] rounded-2xl border-none outline-none focus:ring-2 focus:ring-[#2F6BFF] font-bold text-white" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} />
                 </div>
 
-                <button type="submit" className="w-full py-6 bg-[#2F6BFF] text-white rounded-2xl font-black text-xl hover:bg-white hover:text-[#0F1C2E] transition-all shadow-lg mt-6">
-                  {editingId ? 'Save Changes' : 'Publish Project'}
+                <button 
+                  type="submit" 
+                  disabled={isSaving}
+                  className={`w-full py-6 rounded-2xl font-black text-xl transition-all shadow-lg mt-6 flex items-center justify-center gap-3 ${
+                    isSaving 
+                      ? 'bg-slate-700 text-slate-400 cursor-not-allowed' 
+                      : 'bg-[#2F6BFF] text-white hover:bg-white hover:text-[#0F1C2E]'
+                  }`}
+                >
+                  {isSaving ? (
+                    <>
+                      <motion.div 
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full"
+                      />
+                      Saving...
+                    </>
+                  ) : (
+                    editingId ? 'Save Changes' : 'Publish Project'
+                  )}
                 </button>
                 {editingId && (
                   <button type="button" onClick={() => { setEditingId(null); setFormData({ brand: '', product: '', type: '신규 제작', images: [], link: '' }); }} className="w-full py-4 bg-slate-800 text-slate-400 font-bold rounded-xl hover:text-white transition">

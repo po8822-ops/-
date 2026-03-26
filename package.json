@@ -10,20 +10,23 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "firebase": "^12.11.0",
+    "lucide-react": "latest",
+    "motion": "^12.38.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router-dom": "^7.1.0",
-    "lucide-react": "latest"
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
-    "@types/node": "^22.0.0",
-    "typescript": "^5.0.0",
-    "vite": "latest",
     "@vitejs/plugin-react": "latest",
-    "tailwindcss": "latest",
     "autoprefixer": "latest",
-    "postcss": "latest"
+    "postcss": "latest",
+    "tailwindcss": "latest",
+    "typescript": "^5.0.0",
+    "vite": "latest"
   }
 }

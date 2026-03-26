@@ -1,0 +1,55 @@
+{
+  "entities": {
+    "Portfolio": {
+      "title": "Portfolio",
+      "description": "A portfolio project item",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Project title" },
+        "category": { "type": "string", "description": "Project category" },
+        "description": { "type": "string", "description": "Project description" },
+        "images": { "type": "array", "items": { "type": "string" }, "description": "Base64 encoded images" },
+        "client": { "type": "string", "description": "Client name" },
+        "year": { "type": "string", "description": "Project year" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["title", "category", "images", "createdAt"]
+    },
+    "BrandLogo": {
+      "title": "BrandLogo",
+      "description": "A brand logo for the rolling display",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "description": "Base64 encoded logo image" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["url", "createdAt"]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "A customer inquiry from the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Customer name" },
+        "phone": { "type": "string", "description": "Customer phone number" },
+        "brand": { "type": "string", "description": "Customer brand/product" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["name", "phone", "brand", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/portfolios/{portfolioId}": {
+      "schema": "Portfolio",
+      "description": "Collection of portfolio projects"
+    },
+    "/brandLogos/{logoId}": {
+      "schema": "BrandLogo",
+      "description": "Collection of brand logos"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "Inquiry",
+      "description": "Collection of customer inquiries"
+    }
+  }
+}
